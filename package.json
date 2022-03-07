@@ -1,0 +1,27 @@
+{
+  "name": "chat-app",
+  "version": "1.0.0",
+  "description": "A chat app with node.js using mongodb",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/koeberlc/chat-app.git"
+  },
+  "author": "Célien Koeberlé",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/koeberlc/chat-app/issues"
+  },
+  "homepage": "https://github.com/koeberlc/chat-app#readme",
+  "dependencies": {
+    "body-parser": "^1.19.2",
+    "express": "^4.17.3",
+    "mongodb": "^4.4.1",
+    "mongoose": "^6.2.4",
+    "path": "^0.12.7",
+    "socket.io": "^4.4.1"
+  }
+}
