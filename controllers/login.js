@@ -8,9 +8,8 @@ function signin(req, res) {
   
     newUser.save()
     .then((savedUser) => {
-
         //send back the created Message
-        res.json(savedUser);
+        res.redirect("/user/" + savedUser._id);
             
     }, (err) => {
         res.status(400).json(err)
@@ -18,16 +17,15 @@ function signin(req, res) {
 }
 
 function login(req, res) {
-
     let user = require("../models/users");
-    
-    user.findOne({name : req.body.name, password:req.body.password})
+    console.log(req.body);
+    user.findOne({name:req.body.name, password:req.body.password})
     .then((getuser) => {
         console.log(getuser)
-        res.status(200).json(getuser);
-        redirect("/user/"+user._id);
+        //res.status(200).json(getuser);
+        res.redirect("/user/" + getuser._id);
     }, (err) => {
-        res.status(500).json(getuser);
+        res.status(500).json(err);
     });
  }
 

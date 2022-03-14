@@ -1,15 +1,23 @@
 // getting-started.js
 const express = require('express');
+//Create an application 
+const app = express();
+
 const path = require('path');
 
 const mongoose = require('mongoose');
+
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server);
 
 const client = require('socket.io')(3000).sockets;
 
 let bodyParser = require('body-parser');
 
-//Create an application 
-const app = express();
+
+
 
 //used to fetch the data from forms on HTTP POST, and PUT
 app.use(bodyParser.urlencoded({
@@ -40,33 +48,38 @@ const messagesRoutes = require('./routes/messages');
 const loginRoutes = require('./routes/login');
 
 
-const user = require("./models/users");
-const message = require("./models/messages");
 const Message = require('./models/messages');
 
-client.on("connection", (socket) => {
-    console.log("user connected");
-    socket.emit("message", "Hi");
-
-    socket.on("chatmessage", msg => {
-
-        client.emit("message", msg)
-    })
-    sendStatus = function(s){
-        const message = new Message({users:[], message:msg})
-        message.save().then(()=>{
-            socket.emit("status", s)
+io.on('connection', (socket) => {
+    socket.on('chat message', (data) => {
+        console.log(data)
+        let newMessage = Message ({
+            users: [data.user1,data.user2],
+            message : data.message
         });
-        
-    }
-
-
-})
+      
+        newMessage.save()
+        .then((savedMessage) => {
+    
+            //send back the created Message
+            res.json(savedMessage);
+                
+        }, (err) => {
+            res.status(400).json(err)
+        });
+        io.emit('chat message', data.message);
+    });
+  });
 
 app.use(loginRoutes);
 app.use(messagesRoutes)
 
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/views/index.html');
+  });
 
 const port = process.env.PORT || 8080;
-app.listen(port);
-console.log("Server is running on port: " + port);
+
+server.listen(port, () => {
+    console.log('listening on port:' + port);
+  });
