@@ -1,0 +1,14 @@
+*{
+    padding: 0;
+    margin: 0;
+    color: gray;
+}
+
+p .formInput{
+    width: 150;
+}
+
+.message{
+    color:lightgray;
+    width: 400px;
+}

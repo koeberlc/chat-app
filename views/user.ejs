@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="style.css">
+        <title>User View</title>
+    </head>
+    <body>
+        <h1>UserView</h1>
+        <section id="userlist">
+            
+            <h2>List of users</h2>
+            <% for( const i in users ) { 
+                if(users[i]._id != currentUser) {%>
+                <a href="/user/<%= currentUser %>/<%= users[i]._id %>"><%= users[i].name %></a><br>
+            <% }
+            } %> 
+        </section>
+
+        <!--
+        <% if(msg){ 
+            for(const i in users){
+                if(currentUser == users[i]._id){
+                    var user1 = users[i].name
+                }
+                if(otherUser == users[i]._id){
+                    var user2 = users[i].name
+                }
+            }
+        %>
+        -->
+        <section id="chatbox">
+            <div id="messages">
+            
+            <% for( const i in msg ) { 
+                if(msg[i].users[0] == currentUser){ %>
+                    <div class="message right"><div class="userName">User : <%= currentUser %></div><div class="content"><%= msg[i].message%></div></div>
+                <% }
+                if(msg[i].users[0] == otherUser){ %>
+                    <div class="message left"><div class="userName">User : <%= otherUser %></div><div class="content"><%= msg[i].message%></div></div>
+                <% }
+            } %>
+                
+            </div>
+            <form id="form" action="">
+                <input id="message" autocomplete="off" />
+                <input type="text" id="user1" hidden value="<%= currentUser %>" />
+                <input type="text" id="user2" hidden value="<%= otherUser %>" /><button>Send</button>
+            </form>
+        </section>
+        <% } %>
+        
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var socket = io();
+
+            var form = document.getElementById('form');
+            var message = document.getElementById('message');
+            var user1 = document.getElementById('user1');
+            var user2 = document.getElementById('user2');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (message.value) {
+                    socket.emit('chat message', {message:message.value, user1:user1.value, user2:user2.value});
+                    message.value = '';
+                }
+            });
+
+            socket.on('chat message', function(msg) {
+                var messages = document.getElementById('messages');
+                var item = document.createElement('div');
+                var user = document.createElement('div');
+                var content = document.createElement('div');
+                item.className = "message";
+                user.className = "userName";
+                content.className = "content";
+                content.textContent = msg;
+                item.appendChild(user);
+                item.appendChild(content);
+
+                messages.appendChild(item);
+                window.scrollTo(0, document.body.scrollHeight);
+            });
+        </script>
+        
+    </body>
+</html>
