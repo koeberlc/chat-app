@@ -2,87 +2,349 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <link rel="stylesheet" href="style.css">
+        <!--<link rel="stylesheet" href="public/css/style.css">-->
         <title>User View</title>
     </head>
     <body>
-        <h1>UserView</h1>
-        <section id="userlist">
-            
-            <h2>List of users</h2>
-            <% for( const i in users ) { 
-                if(users[i]._id != currentUser) {%>
-                <a href="/user/<%= currentUser %>/<%= users[i]._id %>"><%= users[i].name %></a><br>
-            <% }
-            } %> 
-        </section>
+        <div id="container">
+            <aside>
+                <header>
+                    <h1>Logged as <%= currentUser.name %></h1>
+                </header>
+                <ul>
+                    <% for( const i in users ) {
+                        if(users[i]._id != currentUser._id) {%>
+                        <a href="/user/<%= currentUser._id %>/<%= users[i]._id %>" class="user">  
+                            <li>
+                                <div>
+                                    <h3>
+                                        <span class="status green"></span>
+                                        <%= users[i].name %>
+                                    </h3>
+                                </div>
+                            </li>
+                        </a>
+                    <% }
+                    } %> 
+                </ul>
+            </aside>
 
-        <!--
-        <% if(msg){ 
-            for(const i in users){
-                if(currentUser == users[i]._id){
-                    var user1 = users[i].name
-                }
-                if(otherUser == users[i]._id){
-                    var user2 = users[i].name
-                }
-            }
-        %>
-        -->
-        <section id="chatbox">
-            <div id="messages">
-            
-            <% for( const i in msg ) { 
-                if(msg[i].users[0] == currentUser){ %>
-                    <div class="message right"><div class="userName">User : <%= currentUser %></div><div class="content"><%= msg[i].message%></div></div>
-                <% }
-                if(msg[i].users[0] == otherUser){ %>
-                    <div class="message left"><div class="userName">User : <%= otherUser %></div><div class="content"><%= msg[i].message%></div></div>
-                <% }
-            } %>
+            <main>
+                <header>
+                    <div>
+                        <% if(msg && otherUser){%>
+                        <h2>You are chatting with <%= otherUser.name%></h2>
+                        <h3>You can chat with him/her</h3>
+                        <%}else{%>
+                            <h2>You are not connected with someone</h2>
+                            <h3>You can't chat for the moment</h3>
+                        <%}%>
+                    </div>
+                </header>
                 
-            </div>
-            <form id="form" action="">
-                <input id="message" autocomplete="off" />
-                <input type="text" id="user1" hidden value="<%= currentUser %>" />
-                <input type="text" id="user2" hidden value="<%= otherUser %>" /><button>Send</button>
-            </form>
-        </section>
-        <% } %>
-        
-        <script src="/socket.io/socket.io.js"></script>
-        <script>
-            var socket = io();
+                <ul id="chat">
+                    <% for( const i in msg ) { 
+                        if(msg[i].users[0] == currentUser._id){ %>
+                            <li class="me">
+                                <div class="entete">
+                                    <!--<h3>10:12AM, Today</h3>-->
+                                    <h2><%= currentUser.name %></h2>
+                                    <span class="status blue"></span>
+                                </div>
+                                <div class="message">
+                                    <%= msg[i].message%>
+                                </div>
+                            </li>
+                        <% }
+                        if(msg[i].users[0] == otherUser._id){ %>
+                            <li class="you">
+                                <div class="entete">
+                                    <span class="status green"></span>
+                                    <h2><%= otherUser.name %></h2>
+                                    <!--<h3>10:12AM, Today</h3>-->
+                                </div>
+                                <div class="message">
+                                    <%= msg[i].message%>
+                                </div>
+                            </li>
+                        <% }
+                    } %>
+                </ul>
+                <footer>
+                    <% if(msg && otherUser){%>
+                    <form id="form" action="">
+                        <textarea id="messagebox" placeholder="Type your message"></textarea>
+                        <input type="text" id="user1" hidden value="<%= currentUser._id %>" />
+                        <input type="text" id="user2" hidden value="<%= otherUser._id %>" />
+                        <button>Send</button>
+                    </form>
+                    <%}%>
+                </footer>
+            </main>
+        </div>
 
-            var form = document.getElementById('form');
-            var message = document.getElementById('message');
-            var user1 = document.getElementById('user1');
-            var user2 = document.getElementById('user2');
+            
+            <script src="/socket.io/socket.io.js"></script>
+            
+            <script>
+                var socket = io();
 
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                if (message.value) {
-                    socket.emit('chat message', {message:message.value, user1:user1.value, user2:user2.value});
-                    message.value = '';
-                }
-            });
+                var form = document.getElementById('form');
+                var message = document.getElementById('messagebox');
+                var user1 = document.getElementById('user1');
+                var user2 = document.getElementById('user2');
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    if (message.value) {
+                        socket.emit('chat message', {message:message.value, user1:user1.value, user2:user2.value});
+                        message.value = '';
+                    }
+                });
 
-            socket.on('chat message', function(msg) {
-                var messages = document.getElementById('messages');
-                var item = document.createElement('div');
-                var user = document.createElement('div');
-                var content = document.createElement('div');
-                item.className = "message";
-                user.className = "userName";
-                content.className = "content";
-                content.textContent = msg;
-                item.appendChild(user);
-                item.appendChild(content);
+                socket.on('chat message', function(data) {
+                    var messages = document.getElementById('chat');
+                    var item = document.createElement('li');
+                    var entete = document.createElement('div');
+                    var status = document.createElement('span');
+                    var name = document.createElement("h2");
+                    var message = document.createElement('div');
 
-                messages.appendChild(item);
-                window.scrollTo(0, document.body.scrollHeight);
-            });
-        </script>
-        
+                    entete.className = "entete";
+                    message.className = "message";
+
+                    name.textContent = data.username;
+
+                    if(data.user == user1.value){
+                        item.className = "me";
+                        status.className = "status blue";
+                        entete.appendChild(name);
+                        entete.appendChild(status);
+                    }else{
+                        item.className = "you";
+                        status.className = "status green";
+                        
+                        entete.appendChild(status);
+                        entete.appendChild(name);
+                    }
+
+                    message.textContent = data.message;
+
+                    item.appendChild(entete);
+                    item.appendChild(message);
+
+                    messages.appendChild(item);
+                    messages.scrollTo(0, messages.scrollHeight);
+                });
+            </script>
+            
+        </div>
     </body>
+    <style>
+        *{
+	box-sizing:border-box;
+}
+body{
+	background-color:#1a1a1a;
+	font-family:Arial;
+}
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background-color:#26272e;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-track {
+    background-color:#494b58;
+  border-radius: 10px;
+}
+#container{
+	background:#5a5e6e;
+	margin:0 auto;
+	font-size:0;
+	border-radius:5px;
+	overflow:hidden;
+}
+aside{
+	width:20vw;
+	background-color:#3b3e49;
+	display:inline-block;
+	font-size:15px;
+	vertical-align:top;
+}
+
+main{
+	width:75vw;
+	display:inline-block;
+	font-size:15px;
+	vertical-align:top;
+}
+
+aside header{
+	padding:30px 20px;
+}
+
+aside ul{
+	padding-left:0;
+	margin:0;
+	list-style-type:none;
+	overflow-y:scroll;
+	height:85vh;
+}
+aside li{
+	padding:10px 0;
+}
+aside li:hover{
+	background-color:#5e616a;
+}
+h2,h3{
+	margin:0;
+    color:#fff;
+}
+h1{
+    color:#fff;
+}
+aside li div{
+    margin-left:20px;
+	margin-right:8px;
+	display:inline-block;
+	vertical-align:top;
+	margin-top:12px;
+}
+aside li h2{
+	font-size:14px;
+	color:#fff;
+	font-weight:normal;
+	margin-bottom:5px;
+}
+aside li h3{
+	font-size:12px;
+	color:#bdc2d1;
+	font-weight:normal;
+}
+a{
+    font-size:12px;
+	color:#bdc2d1;
+	font-weight:normal;
+    text-decoration: none;
+}
+
+.status{
+	width:8px;
+	height:8px;
+	border-radius:50%;
+	display:inline-block;
+	margin-right:7px;
+}
+.green{
+	background-color:#58b666;
+}
+.blue{
+	background-color:#6fbced;
+	margin-right:0;
+	margin-left:7px;
+}
+
+main header{
+	height:110px;
+	padding:30px 20px 30px 40px;
+}
+main header > *{
+	display:inline-block;
+	vertical-align:top;
+}
+main header div{
+	margin-left:10px;
+	margin-right:145px;
+}
+main header h2{
+	font-size:16px;
+	margin-bottom:5px;
+}
+main header h3{
+	font-size:14px;
+	font-weight:normal;
+	color:#bdc2d1;
+}
+
+#chat{
+	padding-left:0;
+	margin:0;
+	list-style-type:none;
+	overflow-y:scroll;
+	height:70vh;
+	border-top:2px solid #bdc2d1;
+
+}
+#chat li{
+	padding:10px 30px;
+}
+#chat h2,#chat h3{
+	display:inline-block;
+	font-size:13px;
+	font-weight:normal;
+}
+#chat h3{
+	color:#bbb;
+}
+#chat .entete{
+	margin-bottom:5px;
+    color:#fff;
+}
+#chat .message{
+	padding:20px;
+	color:#fff;
+	line-height:25px;
+	max-width:90%;
+	display:inline-block;
+	text-align:left;
+	border-radius:5px;
+    overflow-wrap: break-word;
+}
+#chat .me{
+	text-align:right;
+}
+#chat .you .message{
+	background-color:#58b666;
+}
+#chat .me .message{
+	background-color:#6fbced;
+}
+
+main footer{
+	height:155px;
+	padding:20px 30px 10px 20px;
+}
+main footer textarea{
+	resize:none;
+	border:none;
+	display:block;
+	width:100%;
+	height:80px;
+	border-radius:3px;
+	padding:20px;
+	font-size:13px;
+	margin-bottom:13px;
+    background-color: #3b3e49;
+    color:#ddd;
+}
+main footer textarea::placeholder{
+	color:#ddd;
+}
+main footer button{
+	text-decoration:none;
+	text-transform:uppercase;
+	font-weight:bold;
+	color:#6fbced;
+	vertical-align:top;
+	float:right;
+	margin-top:5px;
+    background-color: #3b3e49;
+    width: 200px;
+    height: 30px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+    </style>
 </html>

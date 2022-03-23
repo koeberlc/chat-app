@@ -1,6 +1,5 @@
 function signin(req, res) {
     let user = require('../models/users');
-    console.log(req.body);
     let newUser = new user ({
         name: req.body.name,
         password : req.body.password
@@ -18,10 +17,8 @@ function signin(req, res) {
 
 function login(req, res) {
     let user = require("../models/users");
-    console.log(req.body);
     user.findOne({name:req.body.name, password:req.body.password})
     .then((getuser) => {
-        console.log(getuser)
         //res.status(200).json(getuser);
         res.redirect("/user/" + getuser._id);
     }, (err) => {

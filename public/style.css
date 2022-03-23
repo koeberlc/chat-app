@@ -1,23 +1,3 @@
-<html>
-    <head>
-        <meta charset="utf-8">
-        <link rel="stylesheet" href="./public/css/style.css">
-        <title>Login</title>
-    </head>
-    <body>
-        <div class="login-page">
-            <div class="form">
-                <h1>Login</h1>
-                <form class="login-form" method="post" action="/login">
-                    <input type="text" name="name" placeholder="username"/>
-                    <input type="password" name="password" placeholder="password"/>
-                    <button>login</button>
-                    <p class="message">Not registered? <a href="/signin">Create an account</a></p>
-                </form>
-            </div>
-        </div>
-    </body>
-    <style>
 .login-page {
   width: 360px;
   padding: 8% 0 0;
@@ -71,11 +51,19 @@
   color: #000;
   text-decoration: none;
 }
+.form .register-form {
+  display: none;
+}
 .container {
   position: relative;
   z-index: 1;
   max-width: 300px;
   margin: 0 auto;
+}
+.container:before, .container:after {
+  content: "";
+  display: block;
+  clear: both;
 }
 .container .info {
   margin: 50px auto;
@@ -105,5 +93,3 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;      
 }
-    </style>
-</html>
